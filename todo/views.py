@@ -23,12 +23,35 @@ def home(request, user_id):
 
 
 
-def create_account(request):
+def credentials_are_incorrect(request):
+  username = request.POST['username']
+  password = request.POST['password']
+  
   context = {
-    'to_create_account': True
-  }
+      'log_in_error_message': 'The username or password is incorrect!',
+      'username': username,
+      'password': password
+    }
   
   return render(request, 'todo/index.html', context)
+
+
+
+def authenticate_user(request):
+  username = request.POST['username']
+  password = request.POST['password']
+  
+  try:
+    users = User.objects.get(name=username, password=password)
+  except User.DoesNotExist:
+    return credentials_are_incorrect(request)
+  
+  return HttpResponseRedirect(reverse('todo:home', args=(users.id,)))
+
+
+
+def create_account(request):  
+  return render(request, 'todo/create-account.html')
 
 
 
@@ -37,20 +60,20 @@ def save_account(request):
   password = request.POST['password']
   
   try:
-    users = User.objects.get(name=username)
+    User.objects.get(name=username)
   except User.DoesNotExist:
-    new_user = User(name=request.POST['username'], password=password)
+    new_user = User(name=username, password=password)
     new_user.save()
     
     return HttpResponseRedirect(reverse('todo:home', args=(new_user.id,)))
 
   context = {
-    'username_error_message': 'Username already existed',
+    'username_error_message': 'Username already existed!',
     'to_create_account': True,
     'username': username,
     'password': password
   }
-  return render(request, 'todo/index.html', context)
+  return render(request, 'todo/create-account.html', context)
 
 
 

@@ -93,32 +93,31 @@
 
       .error-message {
         color: #ff0000;
-        margin-bottom: 0.5rem;
+        margin-top: 0.5rem;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="card">
-        <form action="{% url 'todo:authenticate' %}" method="post">
+        <form action="{% url 'todo:save-account' %}" method="post">
           {% csrf_token %}
           <p class="error-message">{{ log_in_error_message }}</p>
 
           <div class="mb-1">
             <label class="form-label" for="username">Username</label>
             <input class="form-input-field" type="text" name="username" id="username" value="{{ username }}" required />
+            <p class="error-message"> {{ username_error_message }} </p>
           </div>
           <div>
             <label class="form-label" for="password">Password</label>
             <input class="form-input-field mb-1" type="password" name="password" id="password" value="{{ password }}" required />
           </div>
 
-          <button class="btn-login" type="submit">Log-in</button>
+          <div class="text-center">
+            <button class="btn-create" type="submit">Create new account</button>
+          </div>
         </form>
-
-        <div class="text-center">
-          <a class="btn-create" href="{% url 'todo:create-account' %}">Create new account</a>
-        </div>
       </div>
     </div>
   </body>

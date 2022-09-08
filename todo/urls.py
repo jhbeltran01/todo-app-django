@@ -6,6 +6,7 @@ app_name = 'todo'
 urlpatterns = [
     path('', views.index, name='index'),
     path('<int:user_id>/home/', views.home, name='home'),
+    path('authenticate-user/', views.authenticate_user, name='authenticate'),
     path('create-account/', views.create_account, name='create-account'),
     path('save-account/', views.save_account, name='save-account'),
     path('<int:user_id>/create-todo/', views.create_todo, name='create-todo'),
