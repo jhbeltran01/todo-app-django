@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet" />
+    <title>Todo - Home</title>
+  </head>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Quicksand", sans-serif;
+      background-color: #161722;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 2.5rem 1rem 0;
+    }
+
+    .wrapper {
+      background-color: #25273c;
+      border-radius: 5px;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      height: max-content;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .card__title {
+      font-size: 2.5rem;
+      letter-spacing: 10px;
+      color: #fafafa;
+    }
+
+    .flex-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    .flex-container-2 {
+      display: flex;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .flex-container-3 {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .flex-container-4 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flex-container-5 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-input-field {
+      background-color: transparent;
+      color: #ffffff;
+      border: none;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+    }
+
+    .form-input-field::placeholder {
+      color: #ffffff;
+    }
+
+    .todo-list {
+      list-style-type: none;
+    }
+
+    .todo-list__item {
+      padding: 1.5em;
+      border-bottom: 1px solid #4d5066;
+      color: #cacde8;
+    }
+
+    .btn-round {
+      min-width: 30px;
+      height: 30px;
+      border-radius: 50px;
+      border: 1px solid #4d5066;
+      background-color: #25273c;
+      cursor: pointer;
+    }
+
+    .btn-round:is(.completed) {
+      background: linear-gradient(rgb(87, 221, 255), rgb(192, 88, 243));
+    }
+
+    .btn-primary {
+      background-color: transparent;
+      border: none;
+      color: #4d5066;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 250ms ease-in-out;
+    }
+
+    .btn-primary:hover {
+      color: #3a7bfd;
+    }
+
+    .btn-primary--large {
+      font-size: 1.3rem;
+    }
+
+    .btn-primary--small {
+      font-weight: normal;
+    }
+
+    .btn-del {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .completed {
+      text-decoration: line-through;
+    }
+
+    .clr-white {
+      color: #cacde8;
+    }
+
+    .font-bold {
+      font-weight: 600;
+    }
+
+    .error-message {
+      color: red;
+    }
+
+    .mb-1 {
+      margin-bottom: 1rem;
+    }
+
+    .p-1 {
+      padding: 1.5em;
+    }
+  </style>
+
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="flex-container-4 mb-1">
+          <h2 class="card__title">TODO</h2>
+          <p class="error-message">{{ todo_error_message }}</p>
+        </div>
+
+        <form class="wrapper flex-container p-1" action="{% url 'todo:create-todo' user.id %}" method="post">
+          {% csrf_token %}
+          <button class="btn-round" type="submit"></button>
+          <input
+            class="form-input-field"
+            type="text"
+            name="todoText"
+            id="todoText"
+            placeholder="Create a new todo..."
+            required
+            autofocus
+          />
+        </form>
+
+        <div class="wrapper">
+          <ul class="todo-list">
+            {% for todo in todo_list %}
+            <li class="todo-list__item flex-container-5">
+              <div class="flex-container-4">
+                <a href="{% url 'todo:completed' user.id todo.id %}">
+                  <button class="btn-round {% if todo.is_completed %} completed {% endif %}"></button>
+                </a>
+                <span {% if todo.is_completed %} class="completed" {% endif %}>{{ todo.text }}</span>
+              </div>
+              <a href="{% url 'todo:delete-task' user.id todo.id %}">
+                <button class="btn-del">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+                    <path
+                      fill="#494C6B"
+                      fill-rule="evenodd"
+                      d="M16.97 0l.708.707L9.546 8.84l8.132 8.132-.707.707-8.132-8.132-8.132 8.132L0 16.97l8.132-8.132L0 .707.707 0 8.84 8.132 16.971 0z"
+                    />
+                  </svg>
+                </button>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <div class="flex-container-2 p-1">
+            <p class="clr-white font-bold">{{ uncompleted_task }} uncompleted task{{ uncompleted_task|pluralize }}</p>
+            <a href="{% url 'todo:delete-completed' user.id %}">
+              <button class="btn-primary btn-primary--small">Clear Completed</button>
+            </a>
+          </div>
+        </div>
+
+        <div class="wrapper flex-container-3 p-1">
+          <a href="{% url 'todo:home' user.id %}">
+            <button class="btn-primary btn-primary--large">All</button>
+          </a>
+          <a href="{% url 'todo:filter' user.id 'active' %}">
+            <button class="btn-primary btn-primary--large">Active</button>
+          </a>
+          <a href="{% url 'todo:filter' user.id 'completed' %}">
+            <button class="btn-primary btn-primary--large">Completed</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

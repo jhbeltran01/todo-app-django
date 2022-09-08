@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo</title>
+
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .card {
+        padding: 1.5em;
+        box-shadow: 0 0 100px rgba(0, 0, 0, 0.142);
+        border-radius: 10px;
+        margin: 0 1rem;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .card__title {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .form-label {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        display: block;
+      }
+
+      .form-input-field {
+        width: 100%;
+        height: 30px;
+        padding: 0 0.5em;
+        font-size: 1.2rem;
+      }
+
+      .btn-login {
+        background-color: #25273c;
+        color: white;
+        font-weight: 600;
+        width: 100%;
+        font-size: 1.5rem;
+        padding: 0.5em;
+        border: 1px solid #25273c;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .btn-create {
+        background-color: #3a7bfd;
+        color: white;
+        text-align: center;
+        display: inline-block;
+        text-decoration: none;
+        padding: 0.5em 1em;
+        margin-top: 1rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #ffffff;
+        border-radius: 5px;
+        border: none;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .mb-1 {
+        margin-bottom: 1rem;
+      }
+
+      .text-red {
+        color: #ff0000;
+        margin-top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        {% if to_create_account %}
+        <h1 class="card__title">Create Account</h1>
+        {% endif %}
+
+        <form {% if to_create_account %} action="{% url 'todo:save-account' %}" {% else %} action="" {% endif %} method="post">
+          {% csrf_token %}
+          <div class="mb-1">
+            <label class="form-label" for="username">Username</label>
+            <input class="form-input-field" type="text" name="username" id="username" value="{{ username }}" required />
+            <div class="text-red">{{ username_error_message }}</div>
+          </div>
+          <div>
+            <label class="form-label" for="password">Password</label>
+            <input class="form-input-field" type="password" name="password" id="password" value="{{ password }}" required />
+          </div>
+
+          {% if to_create_account %}
+          <button class="btn-create" type="submit">Create Account</button>
+          {% else %}
+          <button class="btn-login" type="submit">Log-in</button>
+          {% endif %}
+        </form>
+
+        <div class="text-center">
+          {% if to_create_account %} {% else %}
+          <a class="btn-create" href="{% url 'todo:create-account' %}">Create new account</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
