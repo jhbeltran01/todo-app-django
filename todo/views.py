@@ -24,13 +24,10 @@ def home(request, user_id):
 
 
 def credentials_are_incorrect(request):
-  username = request.POST['username']
-  password = request.POST['password']
-  
   context = {
       'log_in_error_message': 'The username or password is incorrect!',
-      'username': username,
-      'password': password
+      'username': request.POST['username'],
+      'password': request.POST['password']
     }
   
   return render(request, 'todo/index.html', context)
@@ -38,11 +35,8 @@ def credentials_are_incorrect(request):
 
 
 def authenticate_user(request):
-  username = request.POST['username']
-  password = request.POST['password']
-  
   try:
-    users = User.objects.get(name=username, password=password)
+    users = User.objects.get(name=request.POST['username'], password=request.POST['password'])
   except User.DoesNotExist:
     return credentials_are_incorrect(request)
   
@@ -55,23 +49,25 @@ def create_account(request):
 
 
 
-def save_account(request):
-  username = request.POST['username']
-  password = request.POST['password']
+def save_user(request):
+  new_user = User(name=request.POST['username'], password=request.POST['password'])
+  new_user.save()
   
+  return HttpResponseRedirect(reverse('todo:home', args=(new_user.id,)))
+
+
+
+def save_account(request):  
   try:
-    User.objects.get(name=username)
+    User.objects.get(name=request.POST['username'])
   except User.DoesNotExist:
-    new_user = User(name=username, password=password)
-    new_user.save()
-    
-    return HttpResponseRedirect(reverse('todo:home', args=(new_user.id,)))
+    return save_user(request)
 
   context = {
     'username_error_message': 'Username already existed!',
     'to_create_account': True,
-    'username': username,
-    'password': password
+    'username': request.POST['username'],
+    'password': request.POST['password']
   }
   return render(request, 'todo/create-account.html', context)
 
@@ -121,27 +117,28 @@ def mark_as_completed(request, user_id, task_id):
 
 def delete_completed(request, user_id):
   user = User.objects.get(pk=user_id)
+  
   try:
     completed_task = user.todo_set.filter(is_completed=True)
   except (KeyError, Todo.DoesNotExist):
     return HttpResponseRedirect(reverse('todo:home', args=(user_id,)))
   
   completed_task.delete()
-  
   return HttpResponseRedirect(reverse('todo:home', args=(user_id,)))
 
 
 
 def filter(request, user_id, filter_name):
   user = User.objects.get(pk=user_id)
+  
   is_completed_only = filter_name == 'completed'
   todo_list = user.todo_set.filter(is_completed=is_completed_only).order_by('id')
-  active_task = user.todo_set.filter(is_completed=False)
+  uncompleted_task = user.todo_set.filter(is_completed=False)
   
   context = {
     'user': user,
     'todo_list': todo_list,
-    'uncompleted_task': len(active_task)
+    'uncompleted_task': len(uncompleted_task)
   }
   
   return render(request, 'todo/home.html', context)
